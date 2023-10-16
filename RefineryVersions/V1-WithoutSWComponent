@@ -1,0 +1,152 @@
+##### delete the sw components and add an error in node inconsistent
+
+
+class Host{
+    contains Node[1..*] deployedComponents //opposite runningOn
+}
+
+
+
+abstract class Node{
+    //Channel[1..*] channels opposite
+}
+ 
+
+
+class EndorsingNode extends Node {}
+//class ValidatorNode extends Node {}
+class OrderingNode extends Node {}
+
+ 
+abstract class AbstractOrganization.
+class ParticipantOrganization extends AbstractOrganization{
+    //contains Node[1..*] nodes
+    contains Host[1..*] hosts 
+}
+class OrdererOrganization extends AbstractOrganization{
+    contains OrderingNode[1..*] orderingNodes
+}
+
+abstract class Channel {
+    //Organization[1..*] organizations
+    Node[1..5] nodes
+}
+
+% pred organizationOfAChannel(channel, organization) <->
+%     nodes(channel,node),
+%     hosts(organization,host),
+%     deployedComponents(host,node).
+
+class SystemChannel extends Channel {
+    contains ApplicationChannel[1..*] applicationChannel
+}
+class ApplicationChannel extends Channel {
+    contains Ledger[1] ledger
+}
+class Ledger.
+
+pred ledgerInNodes(Ledger ledger, Node node) <->
+    nodes(channel, node),
+    ledger(channel,ledger).
+
+class Error {
+    Node[1] target
+} 
+
+% pred organizationNode(o, n) <->
+%     Organization::hosts(o,h), deployedComponents(h,n).
+
+% pred ordererOrganization(o) <->
+%     organizationNode(o, n), OrderingNode(n).
+
+abstract class FabricNetwork {
+    contains ParticipantOrganization[1..*] organizations
+    contains SystemChannel[1] systemChannel
+    //contains ApplicationChannel[0..*] applicationChannel
+}
+
+error ordererInOtherChannel(orderer, channel) <->
+    OrdererOrganization(orderer),
+    ApplicationChannel(channel),
+    nodes(channel,node),
+    orderingNodes(orderer,node).
+
+
+
+class KafkaFabricNetwork extends FabricNetwork {
+    contains OrdererOrganization[1..*] ordererOrganizations
+}
+
+class RaftFabricNetwork extends FabricNetwork {
+    
+}
+
+error ordererNodeInNotKafkaNetwork(FabricNetwork n, ParticipantOrganization o) <->
+    KafkaFabricNetwork(n),
+    FabricNetwork::organizations(n, o),
+    hosts(o,h),
+    deployedComponents(h,orderer),
+    OrderingNode(orderer).
+
+error participantInSystemChannelForKafka(ParticipantOrganization o, SystemChannel s) <->
+    KafkaFabricNetwork(n),
+    organizations(n,o),
+    organizationCommunicatingWithChannel(o,s).
+
+error participantInSystemChannelForRaft(ParticipantOrganization o, SystemChannel s) <->
+    RaftFabricNetwork(n),
+    organizations(n,o),
+    !organizationCommunicatingWithChannel(o,s).
+    
+pred organizationCommunicatingWithChannel(o,c) <->
+    ParticipantOrganization(o),
+    hosts(o,h),
+    deployedComponents(h,n),
+    nodes(c,n)
+;
+    OrdererOrganization(o),
+    orderingNodes(o,n),
+    nodes(c,n).
+
+error lonelyOrganization(o) <->
+    AbstractOrganization(o),
+    ! organizationCommunicatingWithChannel(o,_).
+
+%==================================
+
+
+
+
+
+% pred channelOrgHasNodeInChannel(Channel c, Organization o) <-> 
+%     organizationNode(o,n), Channel::nodes(c,n).
+
+% TODO: Channels must participate only in one Fabric Network
+ % pred channelInOneFabricNetwork(FabricNetwork n, Channel c, Organization o) <->
+ %     orderingServiceType(n),
+ %     Channel::organizations(c, o), 
+ %     Organization::nodes(n, o).
+
+% error channelInMultipleNetworks(FabricNetwork n, Channel c, Organization o ) <->
+%     channelInOneFabricNetwork(n,c, o).
+     
+
+%==================================
+//RaftFabricNetwork(raftNetwork).
+//KafkaFabricNetwork(kafkaNetwork).
+
+Error(eror).
+
+% Organization(O1).
+% Organization::hosts(O1, H1).
+% default !Organization::hosts(O1, *).
+% deployedComponents(H1, N1).
+% default !deployedComponents(H1, *).
+% OrderingNode(N1).
+
+scope node = 20..25,
+      Node = 3..10,
+      AbstractOrganization = 2..3,
+      FabricNetwork = 1,
+      Error = 1.
+
