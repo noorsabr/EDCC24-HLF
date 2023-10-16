@@ -1,0 +1,45 @@
+n: CREATE A MODEL FOR THIS.
+//TODO: Raft: do all organizations have to participate with orderer nodes? How many max.?
+//TODO: took out validating peer for now
+
+ 
+
+A Fabric network consists of organizations and channels.
+There's at least one organization in each Fabric network.
+There's at least one channel in each Fabric network.
+An organization participates at least in one channel.
+A channel can be a system channel or an application channel.
+A Fabric network contains exactly one system channel.
+
+ 
+
+A Fabric network either employs a Kafka-based or a Raft-based ordering approach.
+
+ 
+
+An organization can be a participant organization or an orderer organization.
+An orderer organization can participate only in a system channel.
+F.N contains at least one participant organization.
+ 
+
+A peer is either an endorsing peer or an ordering peer.
+An organization owns at least one peer.
+An orderer organization owns only ordering peers.
+
+
+For Kafka-based ordering, there's exactly one orderer organization.
+For Kafka-based ordering, participant organizations don't participate in the system channel.
+For Kafka-based ordering, participant organizations can't own ordering peers.
+
+
+
+For Raft-based ordering, there's no orderer organization.
+For Raft-based ordering, all organizations owning ordering peers participate in the system channel.
+For Raft-based ordering, the consenter set of an application channel is a subset of the ordering peers.
+
+ 
+
+Each channel maintains exactly one channel ledger.
+If a peer is a member of a channel, then it maintains a copy of the channel ledger.
+If a participant organization participates in a channel, then at least one of its endorsing peers is a member of the channel.
+If an endorsing peer is a member of a channel, then its organization participates in the channel.
