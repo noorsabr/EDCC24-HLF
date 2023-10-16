@@ -1,0 +1,45 @@
+% Architecture metamodel 
+
+abstract class Component {
+}
+
+class EndorsementNode extends Component {
+} 
+
+class OrdererNode extends Component {
+}
+
+
+% Fault modes
+
+abstract class FaultMode.
+
+class CrashFault extends FaultMode.
+class OrderingFault extends FaultMode.
+
+class ComponentCrashFault {
+    Component[1] faultyComponent
+    CrashFault[1] faultMode
+}
+
+class OrdererCompoentFault  {
+    OrdererNode[1] faultyComponent
+    OrderingFault[1] faultMode
+}
+
+
+% Possible fault modes for components
+
+EndorsementNode(e1).
+OrdererNode(o1).
+
+OrderingFault(of1).
+
+OrdererCompoentFault(ocf1).
+ComponentCrashFault(ccf1).
+
+% OrdererCompoentFault::faultyComponent(ocf1, e1).
+% OrdererCompoentFault::faultMode(ocf1,of1).
+
+
+scope node = 5..40, Component=2..4, FaultMode = 2.
