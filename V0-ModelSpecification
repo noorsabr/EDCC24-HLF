@@ -12,14 +12,12 @@ A channel can be a system channel or an application channel.
 A Fabric network contains exactly one system channel.
 
  
-
 A Fabric network either employs a Kafka-based or a Raft-based ordering approach.
 
  
-
 An organization can be a participant organization or an orderer organization.
 An orderer organization can participate only in a system channel.
-F.N contains at least one participant organization.
+A Fabric network contains at least one participant organization.
  
 
 A peer is either an endorsing peer or an ordering peer.
@@ -30,7 +28,6 @@ An orderer organization owns only ordering peers.
 For Kafka-based ordering, there's exactly one orderer organization.
 For Kafka-based ordering, participant organizations don't participate in the system channel.
 For Kafka-based ordering, participant organizations can't own ordering peers.
-
 
 
 For Raft-based ordering, there's no orderer organization.
