@@ -1,0 +1,65 @@
+..... = by noor
+
+...... A host consists of at least one node as (deployedComponents).
+...... Each Node is associated with one or more Channel
+
+
+A Fabric network consists of organizations and channels.
+There's at least one organization in each Fabric network.
+There's at least one channel in each Fabric network.
+An organization participates at least in one channel.
+A channel can be a system channel or an application channel.
+A Fabric network contains exactly one system channel.
+
+ 
+A Fabric network either employs a Kafka-based or a Raft-based ordering approach.
+
+ 
+...... An AbstractOrganization can be a ParticipantOrganization or an OrdererOrganization.
+...... ParticipantOrganization contains Node instances and Host instances.
+//An organization can be a participant organization or an orderer organization.
+An orderer organization can participate only in a system channel.
+Fabric Network contains at least one participant organization.
+
+ 
+A peer is either an endorsing peer or an ordering peer.
+An organization owns at least one peer.
+An orderer organization owns only ordering peers.
+
+
+For Kafka-based ordering, there's exactly one orderer organization.
+For Kafka-based ordering, participant organizations don't participate in the system channel.
+For Kafka-based ordering, participant organizations can't own ordering peers.
+
+
+For Raft-based ordering, there's no orderer organization.
+For Raft-based ordering, all organizations owning ordering peers participate in the system channel.
+For Raft-based ordering, the consenter set of an application channel is a subset of the ordering peers.
+
+ 
+Each channel maintains exactly one channel ledger.
+If a peer is a member of a channel, then it maintains a copy of the channel ledger.
+If a participant organization participates in a channel, then at least one of its endorsing peers is a member of the channel.
+If an endorsing peer is a member of a channel, then its organization participates in the channel.
+
+
+......PREDICATES AND ERRORS:
+-----------------------------------
+
+- ledgerInNodes:  a Ledger is associated with a particular Node within a Channel.
+
+- ordererInOtherChannel: checks whether an OrdererOrganization is part of an ApplicationChannel.
+
+- ordererNodeInNotKafkaNetwork: checks whether a ParticipantOrganization (should contain a Host and the Host should have an OrderingNode) has an OrderingNode deployed in a KafkaFabricNetwork.
+
+- organizationCommunicatingWithChannel: 
+	-OrdererOrganization should have an OrderingNode deployed in the channel.
+	-ParticipantOrganization should have a Host, the Host should have a Node deployed in the channel (deployedComponents(h, n)).
+
+- participantInSystemChannelForKafka: checks whether a ParticipantOrganization is communicating with a SystemChannel within a KafkaFabricNetwork.
+	- (organizationCommunicatingWithChannel(o, s): The organization should be communicating with the specified SystemChannel.)
+
+- participantInSystemChannelForRaft: checks whether a ParticipantOrganization is not communicating with a SystemChannel within a RaftFabricNetwork.
+	- (!organizationCommunicatingWithChannel(o, s): The organization should not be communicating with the specified SystemChannel).
+
+- lonelyOrganization: checks if an AbstractOrganization is not communicating with any channel.
