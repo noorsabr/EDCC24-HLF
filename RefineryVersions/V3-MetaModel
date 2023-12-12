@@ -1,0 +1,90 @@
+class Host{
+    contains Node[1..*] deployedComponents
+}
+
+abstract class Node{
+}
+
+class EndorsingNode extends Node {}
+class OrderingNode extends Node {}
+
+abstract class AbstractOrganization.
+class ParticipantOrganization extends AbstractOrganization{
+    contains Host[1..*] hosts 
+}
+class OrdererOrganization extends AbstractOrganization{
+    contains OrderingNode[1..*] orderingNodes
+}
+
+abstract class Channel {
+    Node[1..5] nodes
+}
+
+class SystemChannel extends Channel {
+    contains ApplicationChannel[1..*] applicationChannel
+}
+class ApplicationChannel extends Channel {
+    contains Ledger[1] ledger
+}
+class Ledger.
+
+pred ledgerInNodes(Ledger ledger, Node node) <->
+    nodes(channel, node),
+    ledger(channel,ledger).
+
+abstract class FabricNetwork {
+    contains ParticipantOrganization[1..*] organizations
+    contains SystemChannel[1] systemChannel
+    //contains ApplicationChannel[0..*] applicationChannel
+}
+
+error ordererInOtherChannel(orderer, channel) <->
+    OrdererOrganization(orderer),
+    ApplicationChannel(channel),
+    nodes(channel,node),
+    orderingNodes(orderer,node).
+
+
+
+class KafkaFabricNetwork extends FabricNetwork {
+    contains OrdererOrganization[1..*] ordererOrganizations
+}
+
+class RaftFabricNetwork extends FabricNetwork {
+    
+}
+
+error ordererNodeInNotKafkaNetwork(FabricNetwork n, ParticipantOrganization o) <->
+    KafkaFabricNetwork(n),
+    FabricNetwork::organizations(n, o),
+    hosts(o,h),
+    deployedComponents(h,orderer),
+    OrderingNode(orderer).
+
+error participantInSystemChannelForKafka(ParticipantOrganization o, SystemChannel s) <->
+    KafkaFabricNetwork(n),
+    organizations(n,o),
+    organizationCommunicatingWithChannel(o,s).
+
+error participantInSystemChannelForRaft(ParticipantOrganization o, SystemChannel s) <->
+    RaftFabricNetwork(n),
+    organizations(n,o),
+    !organizationCommunicatingWithChannel(o,s).
+    
+pred organizationCommunicatingWithChannel(o,c) <->
+    ParticipantOrganization(o),
+    hosts(o,h),
+    deployedComponents(h,n),
+    nodes(c,n)
+;
+    OrdererOrganization(o),
+    orderingNodes(o,n),
+    nodes(c,n).
+
+error lonelyOrganization(o) <->
+    AbstractOrganization(o),
+    ! organizationCommunicatingWithChannel(o,_).
+
+scope node = 10..15,
+      Node = 3..10,
+FabricNetwork = 1.
