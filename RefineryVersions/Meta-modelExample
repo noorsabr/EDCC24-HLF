@@ -1,0 +1,39 @@
+class Host {
+    contains Node[1..*] deployedComponents
+}
+
+class Node {
+}
+
+class ParticipantOrganization {
+    contains Host[1..*] deploys
+    Channel[1..*] participatesInChannel
+}
+
+abstract class Channel {
+    Node[2..*] channelNodes // Ensure at least 2 nodes in the channel
+}
+
+class SystemChannel extends Channel {
+    % contains Ledger[1] ledgerInChannel
+}
+% class Ledger.
+
+pred notEnoughPeersInChannel(ParticipantOrganization org, SystemChannel ch) <->
+    participatesInChannel(org,ch),
+    channelNodes(ch,nodeA),
+    channelNodes(ch,nodeB),
+    deploys(org, hostA),
+    deploys(org, hostB),
+    deployedComponents(hostA, nodeA),
+    deployedComponents(hostB, nodeB),
+    nodeA != nodeB,
+    hostA != hostB.
+
+error notEnough(ParticipantOrganization org, SystemChannel ch) <-> !notEnoughPeersInChannel(org,ch).
+
+
+scope Node = 3..10,
+      Host = 2,
+      ParticipantOrganization = 1,
+      Channel = 1.
